@@ -167,7 +167,7 @@ def plot_results(results):
     plt.plot(df['size_category'], df['throughput_mbps'], marker='o', linestyle='-', color='red')
     plt.title('Throughput by Dataset Size')
     plt.xlabel('Dataset Size Category')
-    plt.ylabel('Throughput (MB/s)')
+    plt.ylabel('Throughput (Mbps)')
     plt.grid(True)
 
     plot2_path = os.path.join(LOG_DIR, "throughput.png")

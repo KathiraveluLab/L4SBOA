@@ -82,9 +82,10 @@ def run_dicom_transfer(size_dir="medium"):
     print(f"Transfer took {elapsed:.2f} seconds.")
 
     # Calculate metrics
-    # Assume 5MB average file size for generic metrics
-    total_size_mb = sum(os.path.getsize(f) for f in dicom_files) / 1_000_000  # More accurate size in MB
-    throughput_mbps = total_size_mb / elapsed
+    # Calculate metrics from actual file sizes
+    total_size_bytes = sum(os.path.getsize(f) for f in dicom_files)
+    # Throughput in Megabits per second (Mbps) for consistency with iperf
+    throughput_mbps = (total_size_bytes * 8) / elapsed / 1_000_000 if elapsed > 0 else 0
 
     return {
         "size_category": size_dir,

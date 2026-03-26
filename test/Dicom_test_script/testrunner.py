@@ -83,7 +83,7 @@ def run_dicom_transfer(size_dir="medium"):
 
     # Calculate metrics
     # Assume 5MB average file size for generic metrics
-    total_size_mb = len(dicom_files) * 5
+    total_size_mb = sum(os.path.getsize(f) for f in dicom_files) / 1_000_000  # More accurate size in MB
     throughput_mbps = total_size_mb / elapsed
 
     return {

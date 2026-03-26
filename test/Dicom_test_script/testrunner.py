@@ -35,12 +35,12 @@ def run_command(command, background=False):
 def test_connectivity():
     """Test basic connectivity to the server port."""
     print("Testing connection to Server...")
-    result = run_command(f"timeout 3 bash -c '</dev/tcp/{SERVER_IP}/{PORT}'")
-    if result.returncode == 0:
-        print("Connection OK")
-        return True
-    else:
-        print("Connection Failed")
+    try:
+        with socket.create_connection((SERVER_IP, int(PORT)), timeout=3):
+            print("Connection OK")
+            return True
+    except (socket.timeout, ConnectionRefusedError, OSError) as e:
+        print(f"Connection Failed: {e}")
         return False
 
 

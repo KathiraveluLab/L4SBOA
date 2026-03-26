@@ -69,7 +69,7 @@ def run_dicom_transfer(size_dir="medium"):
     # Capture before stats
     net_before = get_network_stats()
 
-    cmd = f"find {dataset_path} -name '*.dcm' -print0 | xargs -0 -n 10 storescu -v -aet {AET} -aec {AEC} --max-pdu 65536 {SERVER_IP} {PORT}"
+    cmd = f"find {shlex.quote(dataset_path)} -name '*.dcm' -print0 | xargs -0 -n 10 storescu -v -aet {AET} -aec {AEC} --max-pdu 65536 {SERVER_IP} {PORT}"
 
     result = run_command(cmd)
 

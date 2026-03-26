@@ -120,7 +120,7 @@ def run_iperf_test(duration=30):
             "throughput_mbps": throughput_bps / 1_000_000,
             "retransmits": retransmits
         }
-    except Exception as e:
+    except (json.JSONDecodeError, KeyError) as e:
         print(f"Failed to parse iperf3 JSON: {e}")
         return None
 

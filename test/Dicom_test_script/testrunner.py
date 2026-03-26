@@ -152,7 +152,7 @@ def plot_results(results):
 
     # Plot 1: Transfer Times
     plt.figure(figsize=(10, 5))
-    plt.bar(df['size_category'], df['transfer_time'], color=['blue', 'orange', 'green'])
+    plt.bar(df['size_category'], df['transfer_time'])
     plt.title('DICOM Transfer Time by Dataset Size')
     plt.xlabel('Dataset Size Category')
     plt.ylabel('Time (Seconds)')

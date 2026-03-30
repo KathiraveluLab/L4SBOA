@@ -6,10 +6,10 @@ import time
 import argparse
 import json
 from datetime import datetime
-import pandas as pd
-import matplotlib.pyplot as plt
 import shlex
 import socket
+import pandas as pd
+import matplotlib.pyplot as plt
 
 # Configuration
 SERVER_IP = "192.168.50.10"

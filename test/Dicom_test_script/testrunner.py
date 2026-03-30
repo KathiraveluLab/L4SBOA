@@ -6,6 +6,8 @@ import time
 import argparse
 import json
 from datetime import datetime
+import shlex
+import socket
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -85,7 +87,7 @@ def run_dicom_transfer(size_dir="medium"):
     # Calculate metrics from actual file sizes
     total_size_mib = sum(os.path.getsize(f) for f in dicom_files) / (1024 * 1024)  # Size in Mebibytes
     throughput_MiBps = (total_size_mib / elapsed) if elapsed > 0 else 0
-    throughput_mbps = (total_size_bytes * 8) / elapsed / 1_000_000 if elapsed > 0 else 0
+    throughput_mbps = (throughput_MiBps * 1024 * 1024 * 8) / 1_000_000
 
     return {
         "size_category": size_dir,
@@ -133,7 +135,6 @@ def run_flent_test(test_name="rrul", duration=60):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_file = os.path.join(LOG_DIR, f"flent_{test_name}_{timestamp}.flent.gz")
     cmd = f"flent {shlex.quote(test_name)} -p all_scaled -l {duration} -H {SERVER_IP} -o {shlex.quote(out_file)} --extended-metadata"
-    cmd = f"flent {test_name} -p all_scaled -l {duration} -H {SERVER_IP} -o {out_file} --extended-metadata"
     result = run_command(cmd)
 
     if result.returncode == 0:

@@ -8,6 +8,7 @@ import json
 from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
+import socket
 
 # Configuration
 SERVER_IP = "192.168.50.10"
@@ -85,7 +86,7 @@ def run_dicom_transfer(size_dir="medium"):
     # Calculate metrics from actual file sizes
     total_size_mib = sum(os.path.getsize(f) for f in dicom_files) / (1024 * 1024)  # Size in Mebibytes
     throughput_MiBps = (total_size_mib / elapsed) if elapsed > 0 else 0
-    throughput_mbps = (total_size_bytes * 8) / elapsed / 1_000_000 if elapsed > 0 else 0
+    throughput_mbps = (total_size_mib * 1024 * 1024 * 8) / elapsed / 1_000_000 if elapsed > 0 else 0
 
     return {
         "size_category": size_dir,

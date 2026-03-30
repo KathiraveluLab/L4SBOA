@@ -134,7 +134,6 @@ def run_flent_test(test_name="rrul", duration=60):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     out_file = os.path.join(LOG_DIR, f"flent_{test_name}_{timestamp}.flent.gz")
     cmd = f"flent {shlex.quote(test_name)} -p all_scaled -l {duration} -H {SERVER_IP} -o {shlex.quote(out_file)} --extended-metadata"
-    cmd = f"flent {test_name} -p all_scaled -l {duration} -H {SERVER_IP} -o {out_file} --extended-metadata"
     result = run_command(cmd)
 
     if result.returncode == 0:

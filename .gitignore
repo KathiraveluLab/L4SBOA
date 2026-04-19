@@ -163,3 +163,15 @@ cython_debug/
 node_modules/
 
 .DS_Store
+
+# Design artifacts
+_paper
+_bmad
+
+# AI Agent files
+.claude
+.codex
+.cursor
+.vscode
+.agent
+.gemini

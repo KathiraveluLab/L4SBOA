@@ -1,17 +1,82 @@
-# L4SBOA: TeleHealth Over L4S.
+# L4SBOA: TeleHealth Over L4S
 
-**L4SBOA** (pronounced [Lisboa](https://pt.wikipedia.org/wiki/Lisboa)) is an L4S-based experimental network framework. We use L4SBOA as a prototype for network optimization developments in practice for various telehealth applications – sending DICOM images for diagnostics (high volume of data but tolerance for high latency), telemonitoring via wearable devices (low volume of data but demand for low latency), televisits (a video call through apps such as Zoom – high volume of data and demand for high latency). As a result of this project, we will understand whether we need any optimizations for L4S to use for telehealth applications and potential alternative approaches. 
+**L4SBOA** (pronounced [Lisboa](https://pt.wikipedia.org/wiki/Lisboa)) is an L4S-based experimental network orchestration framework designed for optimizing Telehealth applications. It systematically evaluates the performance of L4S (Low Latency, Low Loss, and Scalable Throughput) against classic Internet congestion control protocols (like TCP Cubic) for delay-critical use-cases such as:
 
-Low Latency, Low Loss, and Scalable Throughput (L4S) Internet Service [1](https://datatracker.ietf.org/doc/rfc9330/), [2](http://www.watersprings.org/pub/id/draft-ietf-tsvwg-l4s-arch-06.html), [3](http://www.ring.gr.jp/archives/doc/RFC/rfc9330.pdf) has shown promising performance, by rethinking congestion control. Can we have a telehealth deployment with pairs of L4S nodes? Let's start with something simple, such as two DICOM endpoints to send radiographic images in between. [Linux kernel with L4S patches](https://github.com/L4STeam/linux) can be a good starting point for the endpoints. How L4S, with telehealth and other applications, as well as classic non-L4S traffic, share the network will be an interesting test. 
+- **DICOM Imaging**: High-volume, loss-intolerant data streams for diagnostics.
+- **Televisits / Video Streams**: Real-time communication requiring steady flows and minimal latency variation.
+- **Wearable Telemonitoring**: Low-volume, ultra-low latency critical data.
 
-As rural Alaska is largely unconnected by the road network, people often need to fly into larger towns such as Fairbanks and Anchorage for their healthcare needs. This state of affairs has steered the telehealth initiatives in Alaska much more than elsewhere in the US. Our research partners from healthcare organizations such as the [Alaska Native Tribal Health Consortium (ANTHC)](https://www.anthc.org/) utilize telehealth in their daily operations. Improved telehealth access and performance can significantly benefit patients and providers in terms of patient satisfaction and comfort.
+---
 
-Congestion Control has been of enormous interest to computing since the 80s when congestion collapses were first noticed. Many solutions were deployed to solve this problem, it was still however noticed they were just not sufficient. At the very base of these inadequacies were three prevalent constraints: loss, latency, and throughput. Most congestion control algorithms can't guarantee low loss, low latency, and scalable throughput. L4S signifies one of the recent summits of research on congestion control, and it promises low loss, low latency, and scalable throughput. These claims have been attested to and evidenced by multiple researchers. 
+## Getting Started
 
-Alaska is the largest state in the United States of America and is said to be larger than 179 recognized countries. Aside from its huge land mass, it has one of the smallest populations in the United States of America. This points to low population density and multiple remote areas needing basic amenities like healthcare. Thanks to the internet, telemedicine is an avenue in remote areas that can be used for healthcare. The biggest impediments to telehealth in remote areas are loss, throughput, and latency.
+To fully utilize the L4SBOA framework, your test network requires pairs of nodes configured with L4S-enabled networking stacks.
 
-This work aimed to investigate the claims of L4S in the first instance and, eventually, the improvements it brings to telehealth deployments. The telehealth component of this work is in three phases: telehealth consultations, DICOM imaging, and wearable devices. For Google Summer Of Code 2024, we were able to satisfactorily evaluate the first phase, which is the telehealth consultation component of the research.
+### 1. Environment Setup
 
-For GSoc 2025, we would be extending the current frontend and creating a script that automates the test on L4S nodes against DICOM endpoint in comparision with the regular internet. A good starting point will be installing the L4S nodes on your machine from the repo https://github.com/L4STeam/linux and then running the tests. The technology is relatively novel so your ideas on testing and implementation will be welcomed. For the application, we are looking at your approach for testing and comparing the effectiveness of L4S on telemedicine workload so after installing the node.
+Both the client (sender) and server (receiver) nodes must be patched to support the TCP Prague congestion control algorithm and the DualQ Coupled Active Queue Management (AQM).
+
+For step-by-step kernel installation and verification instructions, please review the setup guide:
+**[L4S Kernel Patch Setup Guide](L4SkernelPatchSetUp.md)**
+
+---
+
+## Running the Framework
+
+The L4SBOA framework offers two primary automated evaluation modules depending on your research target.
+
+### Module A: RTT Dependency Simulator (Benchmark Suite)
+
+To orchestrate exact replicas of the preliminary research assessments (as detailed in the CCECE_25 manuscript) and automatically generate RTT dependency throughput charts, use the provided Python Test Runner.
+
+**1. Install Dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+**2. Run the Simulator**
+The test runner integrates with `tc qdisc` and `iperf3` to seamlessly simulate varying synthetic network delays (from 0.5ms to 50ms gaps) over a continuous `900s` scalable interval context.
+
+```bash
+# Run assessment against standard TCP Cubic
+sudo ./testrunner.py --host <target_iperf_server_ip> --cc cubic --rtt-scale 1
+
+# Run assessment against L4S TCP Prague
+sudo ./testrunner.py --host <target_iperf_server_ip> --cc prague --rtt-scale 1
+```
+
+**Visualization**: Upon completion, the script parses the metrics and uses `matplotlib` to render shaded dependency plots (e.g., `rtt1_prague.png`) demonstrating the scalable throughput capacities.
+> *Note: Use the `--dry-run` flag to test the plotting logic instantly without an active `iperf3` connection.*
+
+### Module B: DICOM Transfer Evaluation
+
+This module evaluates application-layer performance by transferring medical DICOM datasets utilizing standard hospital PACS utilities (`storescp` / `storescu`).
+
+**1. Prepare the Environment**
+Set up the `storescp` receiver on the destination L4S node:
+```bash
+storescp -v -aet PACS_SERVER -od ~/dicom_received 1104
+```
+
+**2. Execute the Transfers**
+Use the provided bash orchestration scripts to automate baseline and congested transfers across small, medium, and large clinical datasets:
+```bash
+./test/Dicom_test_script/test_script.sh
+```
+
+For exhaustive evaluation architectures and customization, please review the full DICOM documentation:
+**[DICOM Transfer Testing Guide](DicomTransferTest.md)**
+
+---
+
+## Research Context & Objectives
+
+The telehealth consultation evaluation was initiated as part of a **Google Summer Of Code 2024** project targeting improved healthcare network optimization for rural communities (e.g., in Alaska).
 
 
+
+## Citation
+
+If you use this work in your research, please cite the following publication:
+
+* Daramola K, Murphy R, Kathiravelu P. **L4S Bandwidth Orchestration Architecture: A Case for Network Optimization for Healthcare.** In 2025 IEEE Canadian Conference on Electrical and Computer Engineering (CCECE) 2025 May 26 (pp. 1-5). IEEE.

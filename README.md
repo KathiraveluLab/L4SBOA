@@ -30,19 +30,29 @@ The L4SBOA framework offers two primary automated evaluation modules depending o
 To orchestrate exact replicas of the preliminary research assessments (as detailed in the CCECE_25 manuscript) and automatically generate RTT dependency throughput charts, use the provided Python Test Runner.
 
 **1. Install Dependencies**
+
+It is recommended to use a virtual environment to avoid conflicts with your system's Python packages:
+
 ```bash
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install the required packages
 pip install -r requirements.txt
 ```
 
 **2. Run the Simulator**
 The test runner integrates with `tc qdisc` and `iperf3` to seamlessly simulate varying synthetic network delays (from 0.5ms to 50ms gaps) over a continuous `900s` scalable interval context.
 
+> **Note**: Since the script requires `sudo` for network configuration, you should run it using the virtual environment's Python interpreter:
+
 ```bash
 # Run assessment against standard TCP Cubic
-sudo ./testrunner.py --host <target_iperf_server_ip> --cc cubic --rtt-scale 1
+sudo .venv/bin/python testrunner.py --host <target_iperf_server_ip> --cc cubic --rtt-scale 1
 
 # Run assessment against L4S TCP Prague
-sudo ./testrunner.py --host <target_iperf_server_ip> --cc prague --rtt-scale 1
+sudo .venv/bin/python testrunner.py --host <target_iperf_server_ip> --cc prague --rtt-scale 1
 ```
 
 **Visualization**: Upon completion, the script parses the metrics and uses `matplotlib` to render shaded dependency plots (e.g., `rtt1_prague.png`) demonstrating the scalable throughput capacities.
